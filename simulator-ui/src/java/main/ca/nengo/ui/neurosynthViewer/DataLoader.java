@@ -80,10 +80,10 @@ class DataLoader {
 			URI uri = new URI(SCHEME, AUTHORITY, PATH, query, FRAGMENT);
 			return uri.toURL();
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
+			System.err.println(e);
 			return null;
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
+			System.err.println(e);
 			return null;
 		}
 	}
@@ -93,7 +93,6 @@ class DataLoader {
 		try {
 			stream = url.openStream();
 		} catch (IOException e) {
-			e.printStackTrace();
 			return null;
 		}
 		
@@ -104,22 +103,19 @@ class DataLoader {
 			input.close();
 			return object;
 		} catch (IOException e) {
-			e.printStackTrace();
 			return null;
 		} catch (ParseException e) {
-			e.printStackTrace();
 			return null;
 		} catch (ClassCastException e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
 	
 	private Data createData(JSONObject json) {
 		int[] ranges = Data.getRanges();
+		int xRange = ranges[0];
 		int yRange = ranges[1];
-		int zRange = ranges[2];
-		int yzRange = yRange * zRange;
+		int xyRange = xRange * yRange;
 
 		try {
 			Number min = (Number) json.get("min");
@@ -147,26 +143,22 @@ class DataLoader {
 					// the logic here is copied from examining the script on
 					// NeuroSynth.com, so I can't really explain some things
 					
-					// why subtract 1?
+					// subtracting 1, as following the implementation on Neurosynth website
 					int index = numIndex.intValue() - 1;
 					
-					// x and z are swapped when compared to the coordinate
-					// system used in the rest of the code
-					int x = (index / yzRange);
-					int y = (index - (x * yzRange)) / zRange;
-					int z = index - (x * yzRange) - (y*zRange);
+					// index = z * xRange * yRange + y * xRange + x
+					int z = (index / xyRange);
+					int y = (index - (z * xyRange)) / xRange;
+					int x = index - (z * xyRange) - (y * xRange);
 
-					// TODO: change to data coordinates to x y z
 					data.setValue(x, y, z, value);
 				}
 			}
 			return data;
 			
 		} catch (ClassCastException e) {
-			e.printStackTrace();
 			return null;
 		} catch (NullPointerException e) {
-			e.printStackTrace();
 			return null;
 		}
 	}

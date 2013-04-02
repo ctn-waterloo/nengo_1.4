@@ -42,7 +42,7 @@ class Data {
 		if (x < 0 || x > RANGES[0] ||
 			y < 0 || y > RANGES[1] ||
 			z < 0 || z > RANGES[2]) {
-			System.err.println("HERE");
+			return 0;
 		}
 		
 		HashMap<Integer, HashMap<Integer, Float>> yPlane;

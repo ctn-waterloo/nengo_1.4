@@ -2,6 +2,9 @@ package ca.nengo.ui.actions;
 
 import java.util.ArrayList;
 
+import ca.nengo.model.nef.NEFEnsemble;
+import ca.nengo.model.nef.impl.NEFEnsembleImpl;
+import ca.nengo.ui.NengoGraphics;
 import ca.nengo.ui.lib.actions.ActionException;
 import ca.nengo.ui.lib.actions.StandardAction;
 import ca.nengo.ui.models.nodes.UINEFEnsemble;
@@ -13,12 +16,12 @@ import ca.nengo.ui.neurosynthViewer.NeurosynthViewer;
  * @author TODO
  */
 public class SetEnsembleLocationAction extends StandardAction {
-	private final NeurosynthViewer viewer = new NeurosynthViewer();
+	private static final NeurosynthViewer viewer = new NeurosynthViewer(NengoGraphics.getInstance());
 	private static final long serialVersionUID = 1L;
     private ArrayList<UINEFEnsemble> uiNEFEnsembles;
 
     /**
-     * @param uiNetwork TODO
+     * @param uiNEFEnsemble the ensemble to set position for
      */
     public SetEnsembleLocationAction(ArrayList<UINEFEnsemble> uiNEFEnsembles) {
         super("Set the location of an NEFEnsemble.","Ensemble Locator");
@@ -26,7 +29,21 @@ public class SetEnsembleLocationAction extends StandardAction {
     }
 
     protected void action() throws ActionException {
-    	viewer.getCoordinates();
+    	
+    	if (uiNEFEnsembles.size() == 1) {
+    		NEFEnsemble nefEnsemble = uiNEFEnsembles.get(0).getModel();
+    		int[] coords = nefEnsemble.getPosition();
+    		viewer.setPosition(coords);
+    	}
+    	
+    	int[] coords = viewer.askForPosition();
+    	
+    	if (coords != null) {
+    		for (UINEFEnsemble uiNEFEnsemble: uiNEFEnsembles) {
+    			NEFEnsemble nefEnsemble = uiNEFEnsemble.getModel();
+    			((NEFEnsembleImpl) nefEnsemble).setPosition(coords);
+    		}
+    	}
     }
 }
 

@@ -176,13 +176,14 @@ class Model {
 			return;
 		}
 		
-		data = dataLoader.load(term, dataType);
+		Data newData = dataLoader.load(term, dataType);
 		
-		if (data == null) {
+		if (newData == null) {
 			view.notifyFailedToLoadData(term);
 			return;
 		}
 		
+		data = newData;
 		view.notifyDataChanged();
 	}
 	
@@ -235,8 +236,7 @@ class Model {
 			return 0;
 		}
 	
-		// TODO: change to data coordinates to x y z
-		return data.getValue(coord[2], coord[1], coord[0]);
+		return data.getValue(coord[0], coord[1], coord[2]);
 	}
 	
 	float getMinValue() {
