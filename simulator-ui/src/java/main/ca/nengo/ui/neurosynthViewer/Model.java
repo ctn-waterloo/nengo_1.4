@@ -179,6 +179,7 @@ class Model {
 		Data newData = dataLoader.load(term, dataType);
 		
 		if (newData == null) {
+			// TODO either reverse the search term or clear the data
 			view.notifyFailedToLoadData(term);
 			return;
 		}

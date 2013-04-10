@@ -173,9 +173,9 @@ class ToolBar(
             'interactive', self.do_run, 'interactive plots', enabled=False)
         self.toolbar.add(self.button_run)
         
-        self.button_locate = make_button('locate', self.do_set_location, 
+        self.button_neurosynth = make_button('neurosynth', self.do_set_location, 
             'set the location of an ensemble', enabled=False)
-        self.toolbar.add(self.button_locate);
+        self.toolbar.add(self.button_neurosynth);
 
         SelectionHandler.addSelectionListener(self)
         self.ng.getWorld().getGround().addChildrenListener(self)
@@ -199,7 +199,7 @@ class ToolBar(
         self.button_run.enabled = topnet is not None
 
         ensemble = self.get_selected_nefensemble()
-        self.button_locate.enabled = ensemble is not None
+        self.button_neurosynth.enabled = ensemble is not None
 
     def get_selected_network(self, top_parent=False):
         network = SelectionHandler.getActiveNetwork(top_parent)
