@@ -11,9 +11,10 @@ import ca.nengo.ui.models.nodes.UINEFEnsemble;
 import ca.nengo.ui.neurosynthViewer.NeurosynthViewer;
 
 /**
- * TODO
+ * Opens a Neurosynth dialog for the user to choose the location of the
+ * ensemble in the brain.
  * 
- * @author TODO
+ * @author Tian Yu Zhang
  */
 public class SetEnsembleLocationAction extends StandardAction {
 	private static final NeurosynthViewer viewer = new NeurosynthViewer(NengoGraphics.getInstance());

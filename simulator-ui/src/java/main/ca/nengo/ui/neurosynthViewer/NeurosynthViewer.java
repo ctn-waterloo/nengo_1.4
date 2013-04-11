@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 public class NeurosynthViewer  {
 	private final static String NAME = "Neurosynth Viewer";
 	private final static String IMAGE_DIR = "images/neurosynth/";
+	private final static String SUGGESTIONS_PATH = "data/neurosynth/terms.txt";
 
 	private JFrame parent;
 	private Model model;
@@ -35,6 +36,7 @@ public class NeurosynthViewer  {
 		view.addSelectListener(new SelectListener());
 		
 		model.loadImages(IMAGE_DIR);
+		model.loadTerms(SUGGESTIONS_PATH);
 	}
 	
 	public void setPosition(int[] coordinates) {

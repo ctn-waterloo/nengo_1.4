@@ -3,12 +3,16 @@ package ca.nengo.ui.neurosynthViewer;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import java.awt.Dimension;
 import java.awt.Image;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -61,7 +65,8 @@ class PlaneData {
 
 class Model {
 	private EnumMap<Plane, PlaneData> planeData = new EnumMap<Plane, PlaneData>(Plane.class);
-
+	private List<String> terms = new LinkedList<String>();
+	
 	private int[] position;
 	private View view;
 	
@@ -69,6 +74,7 @@ class Model {
 	private Data data;
 	private String term = "";
 	private DataType dataType = DataType.REVERSE_INFERENCE;
+	
 
 	Model() {
 		planeData.put(Plane.AXIAL, new PlaneData(2, -72, 84, 4, 227, 272,
@@ -107,9 +113,86 @@ class Model {
 		}
 	}
 	
-	private Image getImage(String path) {
+	void loadTerms(String termsPath) {
+		terms.clear();
+		try {
+			FileReader file = new FileReader(termsPath);
+			BufferedReader reader = new BufferedReader(file);
+			String line = reader.readLine();
+			while (line != null) {
+				terms.add(line);
+				line = reader.readLine();
+			}
+			reader.close();
+
+		} catch (FileNotFoundException e) {
+			System.err.println(e);
+		} catch (IOException e) {
+			System.err.println(e);
+		}
+	}
+	
+	List<String> getTerms() {
+		return terms;
+	}
+	
+	List<String> getSuggestions(String filterText) {
+		if (filterText.length() == 0) {
+			return terms;
+		} 
+
+		List<String> filtered = new LinkedList<String>();
 		
-		//InputStream imageStream = getClass().getResourceAsStream(path);
+		String loweredFilter = filterText.toLowerCase();
+		for (String term: terms) {
+			if (term.startsWith(loweredFilter)) {
+				filtered.add(term);
+			}
+		}
+		
+		return filtered;
+	}
+		
+	void showTerm(String newTerm) {
+		term = newTerm;
+		loadData();
+	}
+	
+	void setDataType(DataType type) {
+		dataType = type;
+		loadData();
+	}
+	
+	private void loadData() {
+		if (term.length() == 0) {
+			return;
+		}
+		
+		Data newData = dataLoader.load(term, dataType);
+		
+		if (newData == null) {
+			view.notifyFailedToLoadData(term);
+			return;
+		}
+		
+		data = newData;
+		view.notifyDataChanged();
+	}
+	
+	DataType getDataType() {
+		return dataType;
+	}
+	
+	boolean hasData() {
+		return data != null;
+	}
+	
+	void clearData() {
+		data = null;
+		view.notifyDataChanged();
+	}
+	
+	private Image getImage(String path) {
 		
 		FileInputStream imageStream = null;
 		try {
@@ -161,41 +244,6 @@ class Model {
 		view.notifyPositionChanged();
 	}
 	
-	void showTerm(String newTerm) {
-		term = newTerm;
-		loadData();
-	}
-	
-	void setDataType(DataType type) {
-		dataType = type;
-		loadData();
-	}
-	
-	private void loadData() {
-		if (term.length() == 0) {
-			return;
-		}
-		
-		Data newData = dataLoader.load(term, dataType);
-		
-		if (newData == null) {
-			// TODO either reverse the search term or clear the data
-			view.notifyFailedToLoadData(term);
-			return;
-		}
-		
-		data = newData;
-		view.notifyDataChanged();
-	}
-	
-	DataType getDataType() {
-		return dataType;
-	}
-	
-	boolean hasData() {
-		return data != null;
-	}
-
 	int getValuePlaneIndex(Plane plane) {
 		PlaneData planeData = getPlaneData(plane);
 		int pos = position[planeData.axis];

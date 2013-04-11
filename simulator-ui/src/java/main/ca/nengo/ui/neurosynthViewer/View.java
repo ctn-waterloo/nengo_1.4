@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 class View extends JComponent {
 	private static final long serialVersionUID = 1L;
@@ -22,7 +23,7 @@ class View extends JComponent {
 	
 	Model model;
 	
-	JTextField searchText;
+	SearchBox searchBox;
 	BrainView axialView;
 	BrainView coronalView;
 	BrainView sagittalView;
@@ -41,9 +42,9 @@ class View extends JComponent {
 		JLabel searchLabel = new JLabel("Term:");
 		searchLabel.setFont(font);
 		
-		searchText = new JTextField(20);
-		searchText.addActionListener(new Searcher());
-		searchText.setFont(font);
+		searchBox = new SearchBox(model);
+		searchBox.addActionListener(new Searcher());
+		searchBox.setFont(font);
 		
 		JButton searchButton = new JButton("Search");
 		searchButton.addActionListener(new Searcher());
@@ -92,7 +93,7 @@ class View extends JComponent {
 		searchPanel.setBorder(BorderFactory.createEmptyBorder(SPACING, SPACING, SPACING, SPACING));
 		searchPanel.add(searchLabel);
 		searchPanel.add(Box.createHorizontalStrut(SPACING));
-		searchPanel.add(searchText);
+		searchPanel.add(searchBox);
 		searchPanel.add(Box.createHorizontalStrut(SPACING));
 		searchPanel.add(searchButton);
 
@@ -145,7 +146,7 @@ class View extends JComponent {
 	private class Searcher implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent event) {
-			String term = searchText.getText();
+			String term = searchBox.getText();
 			if (term.length() > 0) {
 				model.showTerm(term);
 			}
@@ -191,11 +192,18 @@ class View extends JComponent {
 	}
 	
 	void notifyFailedToLoadData(String term) {
-		String message = "Failed to load data for \"" + term + "\" "
+		model.clearData();
+		final String message = "Failed to load data for \"" + term + "\" "
 					   + "from  the Neurosynth website.";
-		String title = "Failed to Load Data";
-		int messageType = JOptionPane.ERROR_MESSAGE;
-		JOptionPane.showMessageDialog(this, message, title, messageType);
+		final String title = "Failed to Load Data";
+		final int messageType = JOptionPane.ERROR_MESSAGE;
+		final JComponent parent = this;
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				JOptionPane.showMessageDialog(parent, message, title, messageType);
+			}
+		});
 	}
 	
 	void addCancelListener(ActionListener cancelListener) {
