@@ -172,6 +172,10 @@ class ToolBar(
         self.button_run = make_button(
             'interactive', self.do_run, 'interactive plots', enabled=False)
         self.toolbar.add(self.button_run)
+        
+        self.button_neurosynth = make_button('neurosynth', self.do_set_location, 
+            'set the location of an ensemble', enabled=False)
+        self.toolbar.add(self.button_neurosynth);
 
         SelectionHandler.addSelectionListener(self)
         self.ng.getWorld().getGround().addChildrenListener(self)
@@ -194,6 +198,9 @@ class ToolBar(
         topnet = self.get_selected_network(top_parent=True)
         self.button_run.enabled = topnet is not None
 
+        ensemble = self.get_selected_nefensemble()
+        self.button_neurosynth.enabled = ensemble is not None
+
     def get_selected_network(self, top_parent=False):
         network = SelectionHandler.getActiveNetwork(top_parent)
         if network is not None:
@@ -210,6 +217,18 @@ class ToolBar(
                         network = None
                         break
         return network
+    
+    def get_selected_nefensemble(self):
+        selected = SelectionHandler.getActiveSelection()
+        
+        if selected.isEmpty():
+            return None
+        
+        for node in selected:
+            if not isinstance(node, ca.nengo.ui.models.nodes.UINEFEnsemble):
+                return None
+            
+        return selected
 
     def get_current_network_viewer(self):
         viewer = None
@@ -256,6 +275,11 @@ class ToolBar(
         network = self.get_selected_network(top_parent=True)
         if network is not None:
             ca.nengo.ui.actions.RunInteractivePlotsAction(network).doAction()
+        
+    def do_set_location(self, event):
+        ensemble = self.get_selected_nefensemble()
+        if ensemble is not None:
+            ca.nengo.ui.actions.SetEnsembleLocationAction(ensemble).doAction()
 
     def do_interrupt(self, event):
         self.ng.progressIndicator.interrupt()

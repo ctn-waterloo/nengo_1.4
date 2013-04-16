@@ -101,6 +101,7 @@ public class NEFEnsembleImpl extends DecodableEnsembleImpl implements NEFEnsembl
 
 	private final int myDimension;
 	private float[][] myEncoders;
+	private int[] myPosition;
 
 	private Map<String, LinearApproximator> myDecodingApproximators;
 	private boolean myReuseApproximators;
@@ -144,6 +145,8 @@ public class NEFEnsembleImpl extends DecodableEnsembleImpl implements NEFEnsembl
 			}
 		}
 		myEncoders = encoders;
+		
+		myPosition = new int[3];
 
 		myDecodingApproximators = new HashMap<String, LinearApproximator>(10);
 		myReuseApproximators = true;
@@ -494,6 +497,18 @@ public class NEFEnsembleImpl extends DecodableEnsembleImpl implements NEFEnsembl
 		assert encoders[0].length == getDimension();
 
 		myEncoders = encoders;
+	}
+	
+	public int[] getPosition() {
+		return myPosition;
+	}
+	
+	public void setPosition(int[] position) {
+		if (myPosition.length != position.length) {
+			return;
+		}
+		
+		System.arraycopy(position, 0, myPosition, 0, myPosition.length);
 	}
 
 	/**

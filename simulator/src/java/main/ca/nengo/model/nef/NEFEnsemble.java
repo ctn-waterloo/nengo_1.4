@@ -65,6 +65,13 @@ public interface NEFEnsemble extends DecodableEnsemble {
 	 * @return List of encoders for each Node (each item is the encoding vector for a Node).
 	 */
 	public float[][] getEncoders();
+	
+
+	/**
+	 * @return The position of the ensemble within the brain.
+	 */
+	public int[] getPosition();
+
 
 	/**
 	 * @return Radius of encoded region in each dimension
