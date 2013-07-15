@@ -12,6 +12,7 @@ from ca.nengo.model import StructuralException
 from ca.nengo.io import FileManager
 import java
 import warnings
+import os
 
 from java.util import ArrayList
 from java.util import HashMap
@@ -160,6 +161,8 @@ class Network:
             quick=self.defaults['quick'] #load default quick value
             
         if quick:
+            parent = os.path.dirname(__file__)
+            parent = os.path.join(parent[:parent.index("python")], "quick")
             storage_name='quick_%s_%d_%d_%1.3f_%1.3f'%(storage_code,neurons,dimensions,tau_rc,tau_ref)
             if type(max_rate) is tuple and len(max_rate)==2:
                 storage_name+='_%1.1f_%1.1f'%max_rate
@@ -184,9 +187,8 @@ class Network:
             if seed is not None:
                 storage_name+='_seed%08x'%seed
             if not java.io.File(storage_name+'.'+FileManager.ENSEMBLE_EXTENSION).exists():
-                dir=java.io.File('quick')
-                if not dir.exists(): dir.mkdirs()
-                storage_name='quick'+java.io.File.separator+storage_name
+                if not java.io.File(parent).exists(): java.io.File(parent).mkdirs()
+                storage_name=os.path.join(parent, storage_name)
         else:
             storage_name=''
             
@@ -822,7 +824,7 @@ class Network:
                 elif dim_post==1: transform=[transform]
                 else:
                     raise Exception("Don't know how to turn %s into a %sx%s matrix"%(transform,dim_post,dim_pre))
-            elif (len(transform)!=dim_post and len(transform)!=post.neurons) or len(transform[0])!=dim_pre:
+            elif (len(transform)!=dim_post and len(transform)!=post.neurons) or (len(transform[0])!=dim_pre and len(transform[0])!=pre.neurons):
                 raise Exception("transform dimension mismatch (given a %dx%d matrix, should be %dx%d)"%(len(transform),len(transform[0]),dim_post,dim_pre))
         
         if plastic_array:
